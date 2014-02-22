@@ -13,6 +13,6 @@ Resulting temperatures are then plotted.
 problem2
 --------
 
-Not yet started.
+Some work done on trying to generate a mesh for the problem. Mesh generation almost works, but fails to terminate.
 
 
