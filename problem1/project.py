@@ -21,16 +21,17 @@ def generate_K(n):
     K[n - 1, n] = -((n + 1) * 2 - 3)
     K[n, n - 1] = K[n - 1, n]
     K[n, n] = -K[n - 1, n]
-    K *= L**2 / (2 * n**2)
+    K *= 1 / 2 
     #validate_K(K)
     return K
 
 def generate_fl(n):
+    alpha = L * ALPHA / n
     fl1 = np.matrix(np.zeros((n + 1, 1)))
     fl1[0, 0] = 1
     fl1[-1, 0] = 1
     fl1[1:-1, 0] = 2
-    fl1 *= ALPHA * T_inf * L**2 / (2 * n**2)
+    fl1 *= alpha * T_inf / 2
 
     fl2 = np.matrix(np.zeros((n + 1, n + 1)))
     fl2[0, 0] = 2
@@ -42,7 +43,7 @@ def generate_fl(n):
         fl2[2 + i, 1 + i] = 1
         fl2[1 + i, 1 + i] = 4
 
-    fl2 *= ALPHA * L**3 / (6 * n**3)
+    fl2 *= alpha / 6
 
     return fl1, fl2
 
