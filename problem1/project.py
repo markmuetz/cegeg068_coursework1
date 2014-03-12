@@ -43,13 +43,16 @@ def generate_K(n):
 
     return K
 
-def generate_fl(n):
+def generate_fl(n, alpha_const=False):
     '''Generates load vector for n elements
 
 returns fl1, fl2
 fl1: vector part of load vector looks like (1 2 2 ... 2 1).T
 fl2: matrix part of load vector. Tridiagonal'''
-    alpha = L * ALPHA / n
+    if alpha_const:
+        alpha = ALPHA
+    else:
+        alpha = L * ALPHA / n
     fl1 = np.matrix(np.zeros((n + 1, 1)))
     fl1[0, 0] = 1
     fl1[-1, 0] = 1
@@ -107,7 +110,7 @@ def multi_run(max_n):
         run_project(i, False)
     plt.show()
 
-def draw_graph(T, n, plot):
+def draw_graph(T, n, plot, alpha_const=False):
     temperatures = [T[(i, 0)] for i in range(len(T))]
     temperatures.append(250)
     xs = np.arange(len(temperatures)) * 1.
@@ -117,7 +120,10 @@ def draw_graph(T, n, plot):
         plt.plot(xs, temperatures, 'k+')
 
     if plot:
-        plt.title('Temperatures at nodes for %d elements'%n)
+        if alpha_const:
+            plt.title('Temperatures at nodes for %d elements (const alpha)'%n)
+        else:
+            plt.title('Temperatures at nodes for %d elements'%n)
         plt.ylabel('Temperature')
         plt.xlabel('x')
         plt.savefig('%s/T_vs_x_for_%d.png'%(OUTPUT_FOLDER, n))
@@ -145,7 +151,7 @@ def solve_FE_eq_for_four_elements():
     T = R.I * f_lb
     draw_graph(T, 4, True)
 
-def solve_FE_eq(n=4, plot=True):
+def solve_FE_eq(n=4, plot=True, alpha_const=False):
     '''Generate matrices for n elements then solves.
 
 n: number of elements
@@ -157,7 +163,7 @@ returns: T at x=0
     K = generate_K(n)
 
     # Load vector (realy one vector, one matrix)
-    fl1, fl2 = generate_fl(n)
+    fl1, fl2 = generate_fl(n, alpha_const)
 
     # Combine stiffness matrix and matrix part of load vector.
     M = K + fl2
@@ -172,7 +178,7 @@ returns: T at x=0
     T = R.I * f_lb
 
     if plot:
-        draw_graph(T, n, plot)
+        draw_graph(T, n, plot, alpha_const)
 
     return T[(0, 0)]
 
@@ -182,6 +188,8 @@ def run_project():
         val = (n, solve_FE_eq(n, True))
         print(val)
         T1s.append(val)
+
+    solve_FE_eq(n, True, True)
 
     T1_4 = T1s[0][1]
     T1_1000 = T1s[-1][1]
