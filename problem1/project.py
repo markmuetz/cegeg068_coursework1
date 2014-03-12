@@ -43,21 +43,17 @@ def generate_K(n):
 
     return K
 
-def generate_fl(n, alpha_const=False):
+def generate_fl(n):
     '''Generates load vector for n elements
 
 returns fl1, fl2
 fl1: vector part of load vector looks like (1 2 2 ... 2 1).T
 fl2: matrix part of load vector. Tridiagonal'''
-    if alpha_const:
-        alpha = ALPHA
-    else:
-        alpha = L * ALPHA / n
     fl1 = np.matrix(np.zeros((n + 1, 1)))
     fl1[0, 0] = 1
     fl1[-1, 0] = 1
     fl1[1:-1, 0] = 2
-    fl1 *= alpha * T_inf / 2
+    fl1 *= ALPHA * T_inf * L / (2 * n)
 
     fl2 = np.matrix(np.zeros((n + 1, n + 1)))
     fl2[0, 0] = 2
@@ -69,7 +65,7 @@ fl2: matrix part of load vector. Tridiagonal'''
         fl2[1 + i, 1 + i] = 4
         fl2[2 + i, 1 + i] = 1
 
-    fl2 *= alpha / 6
+    fl2 *= ALPHA * L / (6 * n)
 
     return fl1, fl2
 
@@ -110,7 +106,7 @@ def multi_run(max_n):
         run_project(i, False)
     plt.show()
 
-def draw_graph(T, n, plot, alpha_const=False):
+def draw_graph(T, n, plot):
     temperatures = [T[(i, 0)] for i in range(len(T))]
     temperatures.append(250)
     xs = np.arange(len(temperatures)) * 1.
@@ -120,10 +116,7 @@ def draw_graph(T, n, plot, alpha_const=False):
         plt.plot(xs, temperatures, 'k+')
 
     if plot:
-        if alpha_const:
-            plt.title('Temperatures at nodes for %d elements (const alpha)'%n)
-        else:
-            plt.title('Temperatures at nodes for %d elements'%n)
+        plt.title('Temperatures at nodes for %d elements'%n)
         plt.ylabel('Temperature')
         plt.xlabel('x')
         plt.savefig('%s/T_vs_x_for_%d.png'%(OUTPUT_FOLDER, n))
@@ -132,7 +125,7 @@ def draw_graph(T, n, plot, alpha_const=False):
 def calc_convergence_of_T_1():
     T_1s = []
     ns = []
-    for n in range(4, 202, 2):
+    for n in range(4, 102, 2):
         #print(n)
         ns.append(n)
         T_1s.append(solve_FE_eq(n, False))
@@ -151,7 +144,7 @@ def solve_FE_eq_for_four_elements():
     T = R.I * f_lb
     draw_graph(T, 4, True)
 
-def solve_FE_eq(n=4, plot=True, alpha_const=False):
+def solve_FE_eq(n=4, plot=True):
     '''Generate matrices for n elements then solves.
 
 n: number of elements
@@ -163,7 +156,7 @@ returns: T at x=0
     K = generate_K(n)
 
     # Load vector (realy one vector, one matrix)
-    fl1, fl2 = generate_fl(n, alpha_const)
+    fl1, fl2 = generate_fl(n)
 
     # Combine stiffness matrix and matrix part of load vector.
     M = K + fl2
@@ -178,7 +171,7 @@ returns: T at x=0
     T = R.I * f_lb
 
     if plot:
-        draw_graph(T, n, plot, alpha_const)
+        draw_graph(T, n, plot)
 
     return T[(0, 0)]
 
@@ -188,8 +181,6 @@ def run_project():
         val = (n, solve_FE_eq(n, True))
         print(val)
         T1s.append(val)
-
-    solve_FE_eq(n, True, True)
 
     T1_4 = T1s[0][1]
     T1_1000 = T1s[-1][1]
