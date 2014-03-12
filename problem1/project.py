@@ -128,7 +128,8 @@ def calc_convergence_of_T_1():
     for n in range(4, 102, 2):
         #print(n)
         ns.append(n)
-        T_1s.append(solve_FE_eq(n, False)[(0, 0)])
+        K, T = solve_FE_eq(n, False)
+        T_1s.append(T[(0, 0)])
 
     plt.title('Convergence of temperature at x=0')
     plt.ylabel('Temperature at x=0')
@@ -173,15 +174,16 @@ returns: T at x=0
     if plot:
         draw_graph(T, n, plot)
 
-    return T
+    return K, T
 
 def run_project():
     T1s = []
-    for n in [4, 10, 1000]:
-        Ts = (n, solve_FE_eq(n, True))
-        val = Ts[1][(0, 0)]
+    for n in [4, 10, 100, 1000]:
+        K, T = solve_FE_eq(n, True)
+        val = T[(0, 0)]
         if n == 4:
-            print(Ts)
+            print(T)
+            print(T[3, 0] * K[(4, 3)] + T_0 * K[(4, 4)] - ALPHA * T_inf / 2)
         print(n, val)
         T1s.append(val)
 
