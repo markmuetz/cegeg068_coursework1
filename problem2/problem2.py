@@ -85,6 +85,7 @@ def construct_K(C, Ks):
     return np.matrix(K)
 
 def run_project():
+
     #plt.ion()
     #return rectangle_with_circle_at_corner()
     #return simple_rect()
@@ -99,13 +100,17 @@ def run_project():
         for j in [3, 4, 7, 8, 9]:
             print("K(%d, %d) : %s = %f"%(i, j, K_str[i - 1, j - 1], K[i - 1, j - 1]))
 
-    Kp = np.matrix([[K[2, 2], K[2, 3]],
+    Kprime = np.matrix([[K[2, 2], K[2, 3]],
                     [K[3, 2], K[3, 3]]])
-    up = np.matrix([K[2, 6] + K[2, 7] + K[2, 8], K[3, 6] + K[3, 7] + K[3, 8]]).T
+    uprime = np.matrix([K[2, 6] + K[2, 7] + K[2, 8], K[3, 6] + K[3, 7] + K[3, 8]]).T
 
-    print(Kp)
-    print(up)
-    print(-Kp.I*up)
+    print(Kprime)
+    print(uprime)
+    b = -Kprime.I*uprime
+    print(b)
+    u = np.matrix([0, 0, b[(0, 0)], b[(1, 0)], 0, 0, 1, 1, 1]).T
+    fb = K * u
+    print(fb)
 
     #print(K_str)
     #print(K)
